@@ -144,7 +144,7 @@ static ssize_t sel_write_enforce(struct file *file, const char __user *buf,
 				 size_t count, loff_t *ppos)
 
 {
-return count ;
+	return count;
 }
 
 static const struct file_operations sel_enforce_ops = {
