@@ -431,6 +431,7 @@ struct diagchar_dev {
 	uint8_t user_space_data_busy;
 	/* buffer for updating mask to peripherals */
 	unsigned char *buf_feature_mask_update;
+	struct mutex hdlc_recovery_mutex;
 	struct mutex diag_hdlc_mutex;
 	unsigned char *hdlc_buf;
 	unsigned hdlc_count;
@@ -475,8 +476,10 @@ struct diagchar_dev {
 	struct diag_mask_info *event_mask;
 	struct diag_mask_info *build_time_mask;
 	uint8_t msg_mask_tbl_count;
+	uint8_t bt_msg_mask_tbl_count;
 	uint16_t event_mask_size;
 	uint16_t last_event_id;
+	struct mutex msg_mask_lock;
 	/* Variables for Mask Centralization */
 	uint16_t num_event_id[NUM_SMD_CONTROL_CHANNELS];
 	uint32_t num_equip_id[NUM_SMD_CONTROL_CHANNELS];
