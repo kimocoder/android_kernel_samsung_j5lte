@@ -209,9 +209,12 @@ kgsl_mem_entry_create(void)
 {
 	struct kgsl_mem_entry *entry = kzalloc(sizeof(*entry), GFP_KERNEL);
 
-	if (entry)
+	if (entry != NULL) {
 		kref_init(&entry->refcount);
 
+		/* put this ref in the caller functions after init */
+		kref_get(&entry->refcount);
+	}
 	return entry;
 }
 #ifdef CONFIG_DMA_SHARED_BUFFER
@@ -3272,6 +3275,8 @@ long kgsl_ioctl_map_user_mem(struct kgsl_device_private *dev_priv,
 
 	kgsl_mem_entry_commit_process(private, entry);
 
+	/* put the extra refcount for kgsl_mem_entry_create() */
+	kgsl_mem_entry_put(entry);
 	return result;
 
 error_attach:
@@ -3614,6 +3619,9 @@ long kgsl_ioctl_gpumem_alloc(struct kgsl_device_private *dev_priv,
 	param->gpuaddr = entry->memdesc.gpuaddr;
 	param->size = entry->memdesc.size;
 	param->flags = entry->memdesc.flags;
+
+	/* put the extra refcount for kgsl_mem_entry_create() */
+	kgsl_mem_entry_put(entry);
 	kgsl_mem_entry_commit_process(private, entry);
 	return result;
 err:
@@ -3655,6 +3663,9 @@ long kgsl_ioctl_gpumem_alloc_id(struct kgsl_device_private *dev_priv,
 	param->size = entry->memdesc.size;
 	param->mmapsize = kgsl_memdesc_mmapsize(&entry->memdesc);
 	param->gpuaddr = entry->memdesc.gpuaddr;
+
+	/* put the extra refcount for kgsl_mem_entry_create() */
+	kgsl_mem_entry_put(entry);
 	kgsl_mem_entry_commit_process(private, entry);
 	return result;
 err:
