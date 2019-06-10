@@ -997,13 +997,31 @@ static void inv_args_pre(uint32_t sc, remote_arg_t *rpra)
 			continue;
 		if (buf_page_start(rpra) == buf_page_start(rpra[i].buf.pv))
 			continue;
-		if (!IS_CACHE_ALIGNED((uintptr_t)rpra[i].buf.pv))
-			dmac_flush_range(rpra[i].buf.pv,
-				(char *)rpra[i].buf.pv + 1);
+		if (!IS_CACHE_ALIGNED((uintptr_t)
+				uint64_to_ptr(rpra[i].buf.pv))) {
+			if (map && map->handle)
+				msm_ion_do_cache_op(ctx->fl->apps->client,
+					map->handle,
+					uint64_to_ptr(rpra[i].buf.pv),
+					sizeof(uintptr_t),
+					ION_IOC_CLEAN_INV_CACHES);
+			else
+				dmac_flush_range(
+					uint64_to_ptr(rpra[i].buf.pv), (char *)
+					uint64_to_ptr(rpra[i].buf.pv + 1));
+		}
 		end = (uintptr_t)rpra[i].buf.pv + rpra[i].buf.len;
-		if (!IS_CACHE_ALIGNED(end))
-			dmac_flush_range((char *)end,
-				(char *)end + 1);
+		if (!IS_CACHE_ALIGNED(end)) {
+			if (map && map->handle)
+				msm_ion_do_cache_op(ctx->fl->apps->client,
+						map->handle,
+						uint64_to_ptr(end),
+						sizeof(uintptr_t),
+						ION_IOC_CLEAN_INV_CACHES);
+			else
+				dmac_flush_range((char *)end,
+					(char *)end + 1);
+		}
 	}
 }
 
@@ -1021,9 +1039,6 @@ static void inv_args(uint32_t sc, remote_arg_t *rpra, int used)
 			dmac_inv_range(rpra[i].buf.pv,
 				(char *)rpra[i].buf.pv + rpra[i].buf.len);
 	}
-
-	if (inv || REMOTE_SCALARS_OUTHANDLES(sc))
-		dmac_inv_range(rpra, (char *)rpra + used);
 }
 
 static int fastrpc_invoke_send(struct fastrpc_apps *me,
