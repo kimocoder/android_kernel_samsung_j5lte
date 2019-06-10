@@ -333,6 +333,7 @@ again:
 	 * page lock will be acquired only if it is unavoidable
 	 */
 
+	page = compound_head(page);
 	mapping = READ_ONCE(page_head->mapping);
 
 	/*
