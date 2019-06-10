@@ -1357,7 +1357,7 @@ static int fanout_add(struct sock *sk, u16 id, u16 type_flags)
 
 	spin_lock(&po->bind_lock);
 	if (po->running &&
-		match->type == type &&
+	    match->type == type &&
 	    match->prot_hook.type == po->prot_hook.type &&
 	    match->prot_hook.dev == po->prot_hook.dev) {
 		err = -ENOSPC;
