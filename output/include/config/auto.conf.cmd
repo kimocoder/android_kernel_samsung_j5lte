@@ -116,7 +116,6 @@ deps_config := \
 	drivers/bif/Kconfig \
 	drivers/coresight/Kconfig \
 	drivers/reset/Kconfig \
-	drivers/gud/Kconfig \
 	drivers/ipack/devices/Kconfig \
 	drivers/ipack/carriers/Kconfig \
 	drivers/ipack/Kconfig \
