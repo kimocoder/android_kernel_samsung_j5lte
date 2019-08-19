@@ -205,10 +205,7 @@ static int32_t afe_callback(struct apr_client_data *data, void *priv)
 			cali_state[this_afe.calib_data.res_cfg.th_vi_ca_state]);
 		} else
 			atomic_set(&this_afe.state, -1);
-		if (afe_token_is_valid(data->token))
 			wake_up(&this_afe.wait[data->token]);
-		else
-			return -EINVAL;
 	} else if (data->payload_size) {
 		uint32_t *payload;
 		uint16_t port_id = 0;
@@ -238,10 +235,7 @@ static int32_t afe_callback(struct apr_client_data *data, void *priv)
 			case AFE_PORTS_CMD_DTMF_CTL:
 			case AFE_SVC_CMD_SET_PARAM:
 				atomic_set(&this_afe.state, 0);
-			if (afe_token_is_valid(data->token))
 				wake_up(&this_afe.wait[data->token]);
-			else
-				return -EINVAL;
 				break;
 			case AFE_SERVICE_CMD_REGISTER_RT_PORT_DRIVER:
 				break;
@@ -269,10 +263,7 @@ static int32_t afe_callback(struct apr_client_data *data, void *priv)
 			else
 				this_afe.mmap_handle = payload[0];
 			atomic_set(&this_afe.state, 0);
-			if (afe_token_is_valid(data->token))
-				wake_up(&this_afe.wait[data->token]);
-			else
-				return -EINVAL;
+			wake_up(&this_afe.wait[data->token]);
 		} else if (data->opcode == AFE_EVENT_RT_PROXY_PORT_STATUS) {
 			port_id = (uint16_t)(0x0000FFFF & payload[0]);
 		}
