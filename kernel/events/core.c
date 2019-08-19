@@ -3245,7 +3245,7 @@ static void free_event(struct perf_event *event)
 	call_rcu(&event->rcu_head, free_event_rcu);
 }
 
-int perf_event_release_kernel(struct perf_event *event)
+static int __perf_event_release_kernel(struct perf_event *event)
 {
 	struct perf_event_context *ctx = event->ctx;
 
@@ -3269,6 +3269,17 @@ int perf_event_release_kernel(struct perf_event *event)
 	free_event(event);
 
 	return 0;
+}
+
+int perf_event_release_kernel(struct perf_event *event)
+{
+	int ret;
+
+	mutex_lock(&pmus_lock);
+	ret == __perf_event_release_kernel(event);
+	mutex_unlock(&pmus_lock);
+
+	return ret;
 }
 EXPORT_SYMBOL_GPL(perf_event_release_kernel);
 
